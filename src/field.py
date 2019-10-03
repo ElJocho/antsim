@@ -13,7 +13,7 @@ class field():
     free = 0
     ant = 1
     food = 2
-    
+
     def __init__(self):
         self.size = 50 * 50
         self.grid = np.zeros([50, 50])
@@ -26,6 +26,11 @@ class field():
         plt.show()
 
     def checkCell(self, cell):
+        try:
+            self.is_valid(cell)
+        except AssertionError:
+            print("input cell parameter out of boundaries: {}".format(cell))
+            raise ValueError
         return self.grid[cell[0], cell[1]]
 
     def setCell(self, cell, value):
@@ -33,7 +38,7 @@ class field():
             self.is_valid(cell)
             self.is_valid(value)
         except AssertionError:
-            print("invalid value in setCell. Cell {}, value {}".format(cell,
+            print("invalid input in setCell. Cell {}, value {}".format(cell,
                                                                        value))
             raise ValueError
         self.grid[cell[0], cell[1]] = value

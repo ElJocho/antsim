@@ -35,7 +35,7 @@ def get_ant_names():
     data = requests.get(url)
 
     text = data.text
-    # remove everything except lines wanted content
+    # remove everything except lines with wanted content
     nametext = text[text.find("content-content"):text.find("/content-content")]
     lines = nametext.splitlines()
     names = []
