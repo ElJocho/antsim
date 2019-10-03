@@ -8,7 +8,11 @@ import src.controller as ctr
 
 def main():
     field = ctr.create_field()
-    ants = ctr.create_ants()
-
-    for step in range(0, 80):
-        ctr.next_step()
+    active_ants = ctr.create_ants(10)
+    field = ctr.place_ants(active_ants, field)
+    
+    for step in range(0, 81):
+        ctr.next_step(active_ants)
+    
+        
+main()

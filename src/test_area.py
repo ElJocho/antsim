@@ -18,6 +18,21 @@ class test_field(unittest.TestCase):
         with self.assertRaises(IndexError):
             f.grid[50, 49]
 
+    def test_checkCell(self):
+        f = fld.field()
+        assert f.checkCell([49, 49]) == 2
+        assert f.checkCell([3, 49]) == 0
+
+    def test_setCell(self):
+        f = fld.field()
+        assert f.checkCell([49, 2]) == 0
+        f.setCell([49, 2], 1)
+        assert f.checkCell([49, 2]) == 1
+        with self.assertRaises(ValueError):
+            f.setCell([2, 6], 3)
+        with self.assertRaises(ValueError):
+            f.setCell([69, 6], 1)
+
 
 class test_ant(unittest.TestCase):
     def test_init(self):
@@ -46,6 +61,12 @@ class test_ant(unittest.TestCase):
         a = ant.ant()
         a.move()
         assert a.age == 1
+
+    def test_ant_names(self):
+        names = ant.get_ant_names()
+        assert type(names) is list
+        assert len(names) == 40
+
 
 if "__main__" == __name__:
     unittest.main()
