@@ -18,9 +18,7 @@ def test_input(ant_count, turn_count):
 
     def set_value(value, valid_count):
         if value is None:
-            print("valid ant counts between {}".format(valid_ant_count))
-            print("valid turn counts between {}".format(valid_turn_count))
-            print("number should be integer")
+            print("valid range: {}".format(valid_count))
             value = input()
         try:
             value = int(value)
@@ -29,24 +27,24 @@ def test_input(ant_count, turn_count):
         except AssertionError:
             value = None
             print("number out of range, please try again")
-            set_value(value, valid_count)
+            value = set_value(value, valid_count)
         except ValueError:
             value = None
             print("input must be an number")
-            set_value(value, valid_count)
+            value = set_value(value, valid_count)
         else:
             print("valid Input: {}".format(value))
+        finally:
             return value
-
     valid_ant_count = [0, 40]
     valid_turn_count = [1, 100]
 
     if ant_count is None or turn_count is None:
-        print("please enter number of spawning ants, then number of turns")
+        ant_count, turn_count = None, None
+        print("please enter number of spawning ants, then number of turns\n")
 
     ant_count = set_value(ant_count, valid_ant_count)
     turn_count = set_value(turn_count, valid_turn_count)
-
     return ant_count, turn_count
 
 
