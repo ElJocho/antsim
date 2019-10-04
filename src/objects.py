@@ -26,6 +26,12 @@ class ant():
 
     def die(self):
         self.alive = False
+    
+    def getX(self):
+        return self.location[0]
+    
+    def getY(self):
+        return self.location[1]
 
 
 def get_ant_names():
@@ -51,3 +57,18 @@ def get_ant_names():
     names.append("antifa")
     names.append("antman")
     return names
+
+
+class food():
+    def __init__(self, amount = None, location = None):
+        self.amount = amount
+        self.location = location
+
+    def getX(self):
+        return self.location[0]
+
+    def getY(self):
+        return self.location[1]
+
+    def changeAmount(self, x):
+        self.amount = self.amount + x

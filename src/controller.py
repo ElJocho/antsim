@@ -5,7 +5,7 @@ Created on Thu Oct  3 10:47:02 2019
 @author: ElJocho
 """
 import src.field as fld
-import src.ant as ant_
+import src.objects as objects
 import random as rdm
 import os
 
@@ -16,19 +16,22 @@ def create_field():
 
 
 def create_ants(count):
-    try:
-        assert count <= 40
-        assert count >= 0
-    except AssertionError:
-        raise ValueError("Invalid Input, enter a value between 0 and 40")
     ants = []
-    names = ant_.get_ant_names()
+    names = objects.get_ant_names()
 
     for counter in range(0, count):
-        ant = ant_.ant()
+        ant = objects.ant()
         ant.name = names[counter]
         ants.append(ant)
     return ants
+
+
+def create_food(field):
+    food = objects.food()
+    food.amount = rdm.randint(5, 20)
+    food.location = [49, 49]
+    field.grid[food.getX(), food.getY()]
+    return [food]
 
 
 def next_step(ants, field):
@@ -48,7 +51,7 @@ def place_ants(ants, field):
     field.maps.append(field.grid)
 
 
-def create_animation(field):   
+def create_animation(field):
     anim, writer = field.make_animation()
     path = os.path.dirname(os.path.realpath(__file__))
     path = os.path.join(path, '..', 'results')
