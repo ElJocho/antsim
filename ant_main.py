@@ -33,7 +33,7 @@ def main():
 
     # execute certain number of turns
     for step in range(0, turn_count):
-        ctr.next_step(active_ants, field)
+        ctr.next_step(active_ants, field, active_food)
 
     # create an animation and save the result to results/ants.mp4
     ctr.create_animation(field)

@@ -60,6 +60,9 @@ class field():
                 assert data >= 0
             except AssertionError: 
                 raise ValueError
+
+    def getFrame(self):
+        return np.copy(self.grid)
     def make_animation(self):
         """
         Creates an animation
@@ -67,6 +70,7 @@ class field():
         """
         plot_size = self.maps[0].shape
         n_iterations = len(self.maps)
+
         # set up the figure, the axis, and the plot element we want to animate
         fig = plt.figure(figsize=(10, 10))
         ax = plt.axes(xlim=(0, plot_size[1]), ylim=(0, plot_size[0]))

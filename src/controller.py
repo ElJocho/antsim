@@ -30,14 +30,17 @@ def create_food(field):
     food = objects.food()
     food.amount = rdm.randint(5, 20)
     food.location = [49, 49]
-    field.grid[food.getX(), food.getY()]
+    field.grid[food.getX(), food.getY()] = field.food
     return [food]
 
 
-def next_step(ants, field):
+def next_step(ants, field, food):
+    
     for ant in ants:
-        ant.move()
-    field.maps.append(field.grid)
+        field.grid[ant.getX(), ant.getY()] = 0
+        ant.move(ants, food)
+        field.grid[ant.getX(), ant.getY()] = 1
+    field.maps.append(field.getFrame())
 
 
 def place_ants(ants, field):
@@ -48,7 +51,7 @@ def place_ants(ants, field):
             if field.checkCell(ant.location) == field.free:
                 field.setCell(ant.location, field.ant)
                 is_blocked = False
-    field.maps.append(field.grid)
+    field.maps.append(field.getFrame())
 
 
 def create_animation(field):
@@ -57,7 +60,7 @@ def create_animation(field):
     path = os.path.join(path, '..', 'results')
     if not os.path.exists(path):
         os.mkdir(path)
-    path = os.path.join(path, 'anim.mp4')
+    path = os.path.join(path, 'ant.mp4')
     anim.save(path, writer=writer)
 
 
