@@ -7,6 +7,8 @@ Created on Thu Oct  3 10:47:53 2019
 
 import numpy as np
 import matplotlib.pyplot as plt
+from mpl_toolkits.axes_grid1 import make_axes_locatable
+from matplotlib import animation
 
 
 class field():
@@ -18,8 +20,9 @@ class field():
         self.size = 50 * 50
         self.grid = np.zeros([50, 50])
         self.grid[49, 49] = self.food
+        self.maps = []
 
-    def plot(self, ant_locations):
+    def plot(self):
         plt.figure(figsize=(10, 10))
         plt.imshow(self.grid)
         plt.gray()
@@ -51,3 +54,36 @@ class field():
         if type(data) == int:
             assert data <= 1
             assert data >= 0
+
+    def make_animation(self):
+        """
+        Creates an animation
+        param: maps is a list of numpy arrays at different time steps
+        """
+        plot_size = self.maps[0].shape
+        n_iterations = len(self.maps)
+        # set up the figure, the axis, and the plot element we want to animate
+        fig = plt.figure(figsize=(10, 10))
+        ax = plt.axes(xlim=(0, plot_size[1]), ylim=(0, plot_size[0]))
+        a = self.maps[0]
+        im = ax.imshow(a, interpolation='none', vmin=0, vmax=2,
+                       cmap='brg_r')
+
+        # initialization function: plot the background of each frame
+        def init():
+            im.set_data(np.zeros(plot_size))
+            return [im]
+
+        # animation function.  This is called sequentially
+        def animate(i):
+            im.set_array(self.maps[i])
+            return [im]
+
+        # call the animator.
+        anim = animation.FuncAnimation(fig, animate, init_func=init,
+                                       frames=n_iterations,
+                                       interval=400, blit=True)
+        Writer = animation.writers['ffmpeg']
+        writer = Writer(fps=15, metadata=dict(artist='ElJocho'), bitrate=1800)
+
+        return anim, writer
