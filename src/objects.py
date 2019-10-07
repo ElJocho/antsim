@@ -11,16 +11,17 @@ import numpy as np
 
 class ant():
     hive_location = [15, 15]
-    
-    def __init__(self):
+
+    def __init__(self, max_age):
         self.alive = True
         self.age = 0
         self.location = None
         self.name = None
         self.hasFood = False
+        self.maxAge = max_age
 
     def getOlder(self):
-        if self.age < 79:
+        if self.age < self.maxAge:
             self.age += 1
         else:
             self.die()
@@ -92,10 +93,10 @@ class ant():
             for ant in ants:
                 if ant.name != self.name:
                     towards_ant(self, ant.location)
-            
-            if len(influences) is 0:
+
+            if len(influences) == 0:
                 return 0
-            x,y = final_direction()
+            x, y = final_direction()
 
             if x >= 0.5:
                 self.location[0] += 1
@@ -104,7 +105,7 @@ class ant():
             if y >= 0.5:
                 self.location[1] += 1
             elif y <= -0.5:
-                self.location[1] -= 1            
+                self.location[1] -= 1
             self.getOlder()
 
 
@@ -134,7 +135,7 @@ def get_ant_names():
 
 
 class food():
-    def __init__(self, amount = None, location = None):
+    def __init__(self, amount=None, location=None):
         self.amount = amount
         self.location = location
 

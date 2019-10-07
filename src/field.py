@@ -15,9 +15,9 @@ class field():
     ant = 1
     food = 2
 
-    def __init__(self):
-        self.size = 50 * 50
-        self.grid = np.zeros([50, 50])
+    def __init__(self, size):
+        self.size = size[0] * size[1]
+        self.grid = np.zeros(size)
         self.maps = []
 
     def plot(self):
@@ -58,11 +58,12 @@ class field():
             try:
                 assert data <= 1
                 assert data >= 0
-            except AssertionError: 
+            except AssertionError:
                 raise ValueError
 
     def getFrame(self):
         return np.copy(self.grid)
+
     def make_animation(self):
         """
         Creates an animation

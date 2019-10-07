@@ -5,34 +5,31 @@ Created on Thu Oct  3 10:09:33 2019
 @author: ElJocho
 """
 import src.controller as ctr
-import sys
-
+import json
 
 # CONFIG FILLLLEEEEEEEEEEEEEEE!!!!!!
 
+
 def load_input():
-    try:
-        ant_count = sys.argv[1]
-        turn_count = sys.argv[2]
-    except IndexError:
-        ant_count, turn_count = None, None
-    finally:
-        return ant_count, turn_count
+    with open("settings.txt") as path:
+        settings = json.load(path)
+    ctr.test_input(settings)
+    return settings
 
 
 def main():
-    # try to load and validate optional inputs
-    ant_count, turn_count = load_input()
-    ant_count, turn_count = ctr.test_input(ant_count, turn_count)
+    settings = load_input()
 
     # setup starting conditions
-    field = ctr.create_field()
-    active_ants = ctr.create_ants(ant_count)
+    field = ctr.create_field(settings["field_size"])
+    active_ants = ctr.create_ants(settings["number_of_ants"],
+                                  settings["maximum_age"])
+
     active_food = ctr.create_food(field)
     ctr.place_ants(active_ants, field)
 
     # execute certain number of turns
-    for step in range(0, turn_count):
+    for step in range(0, settings["number_of_turns"]):
         ctr.next_step(active_ants, field, active_food)
 
     # create an animation and save the result to results/ants.mp4

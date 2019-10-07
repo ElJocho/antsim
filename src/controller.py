@@ -10,17 +10,17 @@ import random as rdm
 import os
 
 
-def create_field():
-    field = fld.field()
+def create_field(size):
+    field = fld.field(size)
     return field
 
 
-def create_ants(count):
+def create_ants(count, max_age):
     ants = []
     names = objects.get_ant_names()
 
     for counter in range(0, count):
-        ant = objects.ant()
+        ant = objects.ant(max_age)
         ant.name = names[counter]
         ants.append(ant)
     return ants
@@ -35,7 +35,7 @@ def create_food(field):
 
 
 def next_step(ants, field, food):
-    
+
     for ant in ants:
         field.grid[ant.getX(), ant.getY()] = 0
         ant.move(ants, food)
@@ -64,35 +64,33 @@ def create_animation(field):
     anim.save(path, writer=writer)
 
 
-def test_input(ant_count, turn_count):
+def test_input(settings):
+    max_value = {
+                "number_of_turns": 10000,
+                "number_of_ants": 40,
+                "field_size": [1000, 1000],
+                "maximum_age": 100000000000000000
+                }
 
-    def set_value(value, valid_count):
-        if value is None:
-            print("valid range: {}".format(valid_count))
-            value = input()
-        try:
-            value = int(value)
-            assert value >= valid_count[0]
-            assert value <= valid_count[1]
-        except AssertionError:
-            value = None
-            print("number out of range, please try again")
-            value = set_value(value, valid_count)
-        except ValueError:
-            value = None
-            print("input must be an number")
-            value = set_value(value, valid_count)
+    def test(value, maxvalue=None):
+        if type(value) == list:
+            assert len(value) == 2, "more than 2 values passed"
+            [test_value(value[x], maxvalue[x]) for x in range(len(value))]
         else:
-            print("valid Input: {}".format(value))
-        finally:
-            return value
-    valid_ant_count = [0, 40]
-    valid_turn_count = [1, 100]
+            test_value(value, maxvalue)
 
-    if ant_count is None or turn_count is None:
-        ant_count, turn_count = None, None
-        print("please enter number of spawning ants, then number of turns\n")
+    def test_value(value, maxvalue):
+        assert type(value) == int, "value is not integer"
+        assert value > 0, "value is less than 1"
+        try:
+            assert value <= maxvalue, "value is too big"
+        except TypeError:
+            pass
 
-    ant_count = set_value(ant_count, valid_ant_count)
-    turn_count = set_value(turn_count, valid_turn_count)
-    return ant_count, turn_count
+    for key, value in settings.items():
+        try:
+            test(value, max_value[key])
+        except AssertionError as e:
+            print("Error in {}".format(key))
+            print(e)
+            exit()
