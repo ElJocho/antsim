@@ -30,11 +30,12 @@ def main():
 
     # execute certain number of turns
     for step in range(0, settings["number_of_turns"]):
-        ctr.next_step(active_ants, field, active_food)
 
+        ctr.next_step(active_ants, field, active_food)
     # create an animation and save the result to results/ants.mp4
     ctr.create_animation(field)
     print("animation saved to results/ants.mp4")
 
 
-main()
+if __name__ == "__main__":
+    main()

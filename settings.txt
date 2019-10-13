@@ -1,6 +1,6 @@
 {
-"number_of_turns" : 150,
+"number_of_turns" : 200,
 "number_of_ants" : 40,
-"field_size" : [50, 50],
-"maximum_age" : 80
+"field_size" : 50,
+"maximum_age" : 200
  }

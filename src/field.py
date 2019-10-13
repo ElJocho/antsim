@@ -16,14 +16,16 @@ class field():
     food = 2
 
     def __init__(self, size):
-        self.size = size[0] * size[1]
-        self.grid = np.zeros(size)
+        self.size = [size, size]
+        self.grid = np.zeros(self.size)
         self.maps = []
 
     def plot(self):
+        plot_size = self.size
         plt.figure(figsize=(10, 10))
-        plt.imshow(self.grid)
-        plt.gray()
+        ax = plt.axes(xlim=(0, plot_size[1]), ylim=(0, plot_size[0]))
+        a = self.maps[0]
+        ax.imshow(a, interpolation='none', vmin=0, vmax=2, cmap='brg_r')
         plt.show()
 
     def checkCell(self, cell):
@@ -50,8 +52,8 @@ class field():
         if type(data) == list:
             try:
                 assert len(data) == 2
-                assert data[0] <= 49 and data[0] >= 0
-                assert data[1] <= 49 and data[1] >= 0
+                assert data[0] < self.size[0] and data[0] >= 0
+                assert data[1] < self.size[1] and data[1] >= 0
             except AssertionError:
                 raise IndexError
         if type(data) == int:
@@ -69,12 +71,12 @@ class field():
         Creates an animation
         param: maps is a list of numpy arrays at different time steps
         """
-        plot_size = self.maps[0].shape
+        plot_size = self.size
         n_iterations = len(self.maps)
 
         # set up the figure, the axis, and the plot element we want to animate
-        fig = plt.figure(figsize=(10, 10))
-        ax = plt.axes(xlim=(0, plot_size[1]), ylim=(0, plot_size[0]))
+        fig = plt.figure(figsize=(15, 15))
+        ax = plt.axes(xlim=(-0.5, plot_size[1]), ylim=(-0.5, plot_size[0]))
         a = self.maps[0]
         im = ax.imshow(a, interpolation='none', vmin=0, vmax=2,
                        cmap='brg_r')
@@ -92,8 +94,8 @@ class field():
         # call the animator.
         anim = animation.FuncAnimation(fig, animate, init_func=init,
                                        frames=n_iterations,
-                                       interval=400, blit=True)
+                                       interval=2000)
         Writer = animation.writers['ffmpeg']
-        writer = Writer(fps=15, metadata=dict(artist='ElJocho'), bitrate=1800)
+        writer = Writer(fps=2, metadata=dict(artist='ElJocho'), bitrate=-1)
 
         return anim, writer

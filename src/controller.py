@@ -8,6 +8,7 @@ import src.field as fld
 import src.objects as objects
 import random as rdm
 import os
+import sys
 
 
 def create_field(size):
@@ -29,17 +30,16 @@ def create_ants(count, max_age):
 def create_food(field):
     food = objects.food()
     food.amount = rdm.randint(5, 20)
-    food.location = [49, 49]
+    food.location = [x - 1 for x in field.size]
     field.grid[food.getX(), food.getY()] = field.food
     return [food]
 
 
 def next_step(ants, field, food):
-
     for ant in ants:
-        field.grid[ant.getX(), ant.getY()] = 0
-        ant.move(ants, food)
-        field.grid[ant.getX(), ant.getY()] = 1
+        ant.move(ants, food, field)
+    ants = [ant for ant in ants if ant.alive is True]
+    objects.collision_check(ants, field)
     field.maps.append(field.getFrame())
 
 
@@ -47,7 +47,8 @@ def place_ants(ants, field):
     for ant in ants:
         is_blocked = True
         while is_blocked:
-            ant.location = [rdm.randint(0, 49), rdm.randint(0, 49)]
+            ant.location = [rdm.randint(0, field.size[0]-1),
+                            rdm.randint(0, field.size[1]-1)]
             if field.checkCell(ant.location) == field.free:
                 field.setCell(ant.location, field.ant)
                 is_blocked = False
@@ -91,6 +92,10 @@ def test_input(settings):
         try:
             test(value, max_value[key])
         except AssertionError as e:
+            print("-"*60)
             print("Error in {}".format(key))
             print(e)
-            exit()
+            print("please enter valid values in the settings.txt file")
+            print("valid range: 1 - {}".format(max_value[key]))
+            print("-"*60)
+            sys.exit()
