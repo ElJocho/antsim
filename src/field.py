@@ -14,6 +14,7 @@ class field():
     free = 0
     ant = 1
     food = 2
+    hive = 3
 
     def __init__(self, size):
         self.size = [size, size]
@@ -63,6 +64,9 @@ class field():
             except AssertionError:
                 raise ValueError
 
+    def count_ants(self):
+        return np.count_nonzero(self.grid == field.ant)
+
     def getFrame(self):
         return np.copy(self.grid)
 
@@ -78,7 +82,7 @@ class field():
         fig = plt.figure(figsize=(15, 15))
         ax = plt.axes(xlim=(-0.5, plot_size[1]), ylim=(-0.5, plot_size[0]))
         a = self.maps[0]
-        im = ax.imshow(a, interpolation='none', vmin=0, vmax=2,
+        im = ax.imshow(a, interpolation='none', vmin=0, vmax=3,
                        cmap='brg_r')
 
         # initialization function: plot the background of each frame
@@ -94,8 +98,8 @@ class field():
         # call the animator.
         anim = animation.FuncAnimation(fig, animate, init_func=init,
                                        frames=n_iterations,
-                                       interval=2000)
+                                       interval = 500)
         Writer = animation.writers['ffmpeg']
-        writer = Writer(fps=2, metadata=dict(artist='ElJocho'), bitrate=-1)
+        writer = Writer(fps = 15,metadata=dict(artist='ElJocho'), bitrate=-1)
 
         return anim, writer
