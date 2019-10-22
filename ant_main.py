@@ -5,22 +5,13 @@ Created on Thu Oct  3 10:09:33 2019
 @author: ElJocho
 """
 import src.controller as ctr
-import json
 import sys
 import src.errors as err
 
-# CONFIG FILLLLEEEEEEEEEEEEEEE!!!!!!
-
-
-def load_input():
-    with open("settings.txt") as path:
-        settings = json.load(path)
-    ctr.test_input(settings)
-    return settings
 
 
 def main():
-    settings = load_input()
+    settings = src.load_input()
 
     # setup starting conditions
     field = ctr.create_field(settings["field_size"])

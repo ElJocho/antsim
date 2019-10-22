@@ -98,8 +98,8 @@ class field():
         # call the animator.
         anim = animation.FuncAnimation(fig, animate, init_func=init,
                                        frames=n_iterations,
-                                       interval = 500)
+                                       interval=500)
         Writer = animation.writers['ffmpeg']
-        writer = Writer(fps = 15,metadata=dict(artist='ElJocho'), bitrate=-1)
+        writer = Writer(fps=15, metadata=dict(artist='ElJocho'), bitrate=-1)
 
         return anim, writer

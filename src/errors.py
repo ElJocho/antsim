@@ -7,4 +7,5 @@ Created on Mon Oct 14 10:36:45 2019
 
 
 class MovementError(Exception):
+    """used when are placed at the same location"""
     pass
