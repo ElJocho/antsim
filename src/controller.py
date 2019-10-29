@@ -4,58 +4,60 @@ Created on Thu Oct  3 10:47:02 2019
 
 @author: ElJocho
 """
-import src.field as fld
-import src.objects as objects
 import random as rdm
 import os
 import sys
-import src.errors as err
 from typing import Tuple
 import json
+import src.field as fld
+import src.objects as objects
+import src.errors as err
 
 
 def load_input():
+    """loads settings from file settings.txt"""
     with open("settings.txt") as path:
         settings = json.load(path)
     test_input(settings)
     return settings
 
 
-def create_field(size: int) -> fld.field:
+def create_field(size: int) -> fld.Field:
     """
     create the playing board for a run
 
     Parameters
     ----------
     size : int
-        Sets how many columns and rows make up the playing board. Since field is quadratic, size can be an integer.
+        Sets how many columns and rows make up the playing board.
 
     Returns
     -------
-    field : field
+    field : Field
         Instance of class Field.
     """
-    field = fld.field(size)
+    field = fld.Field(size)
     return field
 
 
-def create_hive(field: fld.field) -> objects.hive:
+def create_hive(field: fld.Field) -> objects.Hive:
     """
-    create the ant-hive. It's location is always in the bottom left corner (after animation flips board).
+    create the Ant-Hive. It's location is always in the bottom left corner
+    (after animation flips board).
 
     Parameters
     ----------
-    field : field
-        playing board used to get field size and to mark ant-hive after creation.
+    field : Field
+        playing board used to get Field size and to mark Ant-Hive after creation.
 
     Returns
     -------
-    hive : hive
-        Instance of class hive with random location in bottom left corner
+    Hive : Hive
+        Instance of class Hive with random location in bottom left corner
     """
     left_bot = field.size[0] // 4
-    hive = objects.hive([rdm.randint(0, left_bot), rdm.randint(0, left_bot)])
-    field.grid[hive.getX(), hive.getY()] = field.hive
+    hive = objects.Hive([rdm.randint(0, left_bot), rdm.randint(0, left_bot)])
+    field.set_cell(hive.location, field.HIVE)
     return hive
 
 
@@ -69,103 +71,105 @@ def create_ants(amount: int, max_age: int) -> list:
         amount of starting ants
 
     max_age : int
-        number of turns an ant is alive
+        number of turns an Ant is alive
 
     Returns
     -------
     ants: list
-        all active Instances of class ant in a list
+        all active Instances of class Ant in a list
     """
     ants = []
-    objects.ant.get_ant_names()
+    objects.Ant.get_ant_names()
     for counter in range(0, amount):
-        age = rdm.randint(0, max_age//5)  # starting ants start at a low but random age so they don't die synchronous
-        ant = objects.ant(max_age, age)
-        ant.setName()
+        age = rdm.randint(0, max_age//5)  # ants start at a low, random age for asynchronous death
+        ant = objects.Ant(max_age, age)
+        ant.set_name()
         ants.append(ant)
     return ants
 
 
-def create_food(field: fld.field) -> objects.food:
+def create_food(field: fld.Field) -> objects.Food:
     """
-    create an instance of class food with location and marks newly created instance in field.
+    create an instance of class Food with location and marks newly created instance in Field.
 
     Parameters
     ----------
-    field : field
-        playing board used to mark location of food
+    field : Field
+        playing board used to mark location of Food
 
     Returns
     -------
     ants: list
-        all active Instances of class ant in a list
+        all active Instances of class Ant in a list
     """
-    food = objects.food()
+    food = objects.Food()
     food.location = random_loc(field)
-    field.grid[food.getX(), food.getY()] = field.food
+    field.set_cell(food.location, field.FOOD)
     return food
 
 
-def next_step(ants: list, field: fld.field, foods: list, hive: objects.hive) -> Tuple[list, list]:
+def next_step(ants: list, field: fld.Field, foods: list, hive: objects.Hive)\
+              -> Tuple[list, list]:
     """
-    coordinates all needed changes to the field and objects during one time step.
+    coordinates all needed changes to the Field and objects during one time step.
 
     Parameters
     ----------
     ants : list
         a list containing all active ants
 
-    field : field
+    field : Field
         playing board which is altered during the step
 
     foods : list
         a list containing all active foods
 
-    hive : hive
+    hive : Hive
 
     Returns
     -------
     ants: list
-        all active Instances of class ant in a list
+        all active Instances of class Ant in a list
     """
-    # every ant declares its desired turn and takes, or puts down, food. Ants also get older, and can die.
+    # every Ant declares its desired turn. Ants also get older, and can die.
     for ant in ants:
         ant.move(ants, foods, hive, field)
-    # if any ant took the last piece of food, this food must be deleted now
+    # if any Ant took the last piece of Food, this Food must be deleted now
     foods = [food for food in foods if food.amount > 0]
-    # chance for a new food to appear every step
+    # chance for a new Food to appear every step
     if 80 / rdm.randint(1, 80) == 1:
         foods.append(create_food(field))
     # any dead ants (which died of old age) will not be tracked anymore
     ants = [ant for ant in ants if ant.alive is True]
-    # check if desired locations for ants overlap, saves new locations into ant instances
+    # check if desired locations for ants overlap
     collision_check(ants, field)
-    # place all ants on the field
+    # place all ants on the Field
     locate_ants(ants, field)
-    # check if number of alive ants and number of ants on field are equal
+    # check if number of alive ants and number of ants on Field are equal
     assert field.count_ants() == len(ants), "not equal"
-    # if the hive is not currently occupied by an ant and has enough food and hive is off cooldown: spawn new ant
+    # if the Hive is not currently occupied by an Ant try spawning new Ant
     if hive.is_ready() and hive.is_free(ants, field):
         ants = hive.spawn_ant(ants, field)
         hive.reset_cooldown()
-    # put hive on the map if locations is not occupied by any ant
+    # put Hive on the map if locations is not occupied by any Ant
     hive.is_free(ants, field)
-    # put foods on the map if location is not occupied by any ant
+    # put foods on the map if location is not occupied by any Ant
     for food in foods:
         food.is_free(ants, field)
     # save current state of playing board to a list which is used to animate mp4
-    field.maps.append(field.getFrame())
-    # return currently active ants and food
+    assert field.count_ants() == len(ants), "not equal"
+    field.maps.append(field.get_frame())
+    # return currently active ants and Food
     return ants, foods
 
 
-def random_loc(field: fld.field) -> list:
+def random_loc(field: fld.Field) -> list:
     """
     create a set of coordinates which indicate a location that is unoccupied and random
 
     Parameters
     ----------
-    field : field
+    field : Field
         playing board which is used to check if the location is unoccupied
 
     Returns
@@ -177,67 +181,64 @@ def random_loc(field: fld.field) -> list:
     while is_blocked:
         location = [rdm.randint(0, field.size[0] - 1),
                     rdm.randint(0, field.size[1] - 1)]
-        if field.checkCell(location) == field.free:
+        if field.check_cell(location) == field.FREE:
             is_blocked = False
     return location
 
 
-def place_ants(ants: list, field: fld.field):
+def place_ants(ants: list, field: fld.Field):
     """
-    give starting ants location and place them on field
+    give starting ants location and place them on Field
 
     Parameters
     ----------
     ants : list
         list of active ants
 
-    field : field
+    field : Field
         playing board on which ants are placed
     """
     for ant in ants:
         ant.location = random_loc(field)
-        field.grid[ant.getX(), ant.getY()] = field.ant
-    field.maps.append(field.getFrame())
+        field.set_cell(ant.location, field.ANT)
+    field.maps.append(field.get_frame())
 
 
-def locate_ants(ants: list, field: fld.field):
+def locate_ants(ants: list, field: fld.Field):
     """
-    place ants on the map on their locations if it is not already used by any other ant.
+    place ants on the map on their locations.
 
     Parameters
     ----------
     ants : list
         list of active ants
 
-    field : field
+    field : Field
         playing board on which ants are placed
     """
-    used = []
     for ant in ants:
-        if ant.location not in used:
-            field.grid[ant.getX(), ant.getY()] = field.ant
-            used.append(ant.location)
-        else:
-            raise
+        field.set_cell(ant.location, field.ANT)
 
 
-def collision_check(ants: list, field: fld.field):
+def collision_check(ants: list, field: fld.Field):
     """
-    checks if multiple ants want the same location or if ants would stay still for a turn. If that is the case, the ants
-    move to a random spot next to them else they move to their desired location.
+    checks if multiple ants want the same location or if ants would stay still for a turn.
+    If that is the case, the ants move to a random spot next to them else they move
+    to their desired location.
 
     Parameters
     ----------
     ants : list
         all active ants
 
-    field : field
-        playing board on which ant location is changed to new location after step
+    field : Field
+        playing board on which Ant location is changed to new location after step
     """
-    locked = []  # locations which are occupied by an ant after a step are locked and can't be accessed by other ants
+    # locations which are occupied by an Ant after a step are locked for other ants
+    locked = []
 
-    def lock_move(ant: objects.ant, location: list):
-        """change ant location, mark ant as already moved and lock new location"""
+    def lock_move(ant: objects.Ant, location: list):
+        """change Ant location, mark Ant as already moved and lock new location"""
         if location in locked:
             raise err.MovementError
         ant.location = location
@@ -246,47 +247,54 @@ def collision_check(ants: list, field: fld.field):
 
     def trickle_down(ants: list):
         """
-        checks for all unmoved ants if its target location is locked. if it detects a movement it checks ants again,
+        checks for all unmoved ants if its target location is locked.
+        If it detects a movement it checks ants again,
         until all ants in list have either moved or have free desired locations
         """
         detect_movement = False
         while detect_movement is not True:
+            detect_movement = True
             for ant in ants:
                 if ant.moved is False and ant.next in locked:
-                    detect_movement = True
+                    detect_movement = False
                     random_walk(ant)
 
-    def random_walk(ant: objects.ant):
-        """ant moves to a random free spot next to itself"""
+    def random_walk(ant: objects.Ant):
+        """Ant moves to a random free spot next to itself"""
         def is_valid(number: int) -> bool:
-            """check if number is at least 0 and at maximum the fields size. Dodges IndexErrors"""
+            """
+            check if number is at least 0 and at maximum the fields size.
+            Dodges IndexErrors
+            """
             if number < 0 or number >= field.size[0]:
                 return False
-            else:
-                return True
+            return True
 
-        def check_if_free(x: int, y: int, valid_locations: list):
-            """checks if location is unused and valid. If both applies, location is considered a valid location."""
-            if [x, y] not in locked and (is_valid(x) and is_valid(y)):
-                valid_locations.append([x, y])
+        def check_if_free(x_coord: int, y_coord: int, valid_locations: list):
+            """
+            checks if location is unused and valid.
+            If both applies, location is considered a valid location.
+            """
+            if [x_coord, y_coord] not in locked and (is_valid(x_coord) and is_valid(y_coord)):
+                valid_locations.append([x_coord, y_coord])
 
         valid_locations = []  # all potential cells/locations
-        up = ant.getX() - 1
-        down = ant.getX() + 1
-        left = ant.getY() - 1
-        right = ant.getY() + 1
+        up = ant.get_x() - 1
+        down = ant.get_x() + 1
+        left = ant.get_y() - 1
+        right = ant.get_y() + 1
         # check all 8 neighboring cells
-        check_if_free(ant.getX(), left, valid_locations)
-        check_if_free(ant.getX(), right, valid_locations)
+        check_if_free(ant.get_x(), left, valid_locations)
+        check_if_free(ant.get_x(), right, valid_locations)
         check_if_free(up, left, valid_locations)
         check_if_free(down, left, valid_locations)
         check_if_free(up, right, valid_locations)
         check_if_free(down, right, valid_locations)
-        check_if_free(up, ant.getY(), valid_locations)
-        check_if_free(down, ant.getY(), valid_locations)
+        check_if_free(up, ant.get_y(), valid_locations)
+        check_if_free(down, ant.get_y(), valid_locations)
 
         # randomly lock one free spot
-        if len(valid_locations) != 0:
+        if len(valid_locations) >= 1:
             lock_move(ant, valid_locations[rdm.randint(0, len(valid_locations) - 1)])
         # if there are no free spots, try ants own location
         elif ant.location not in locked:
@@ -297,7 +305,7 @@ def collision_check(ants: list, field: fld.field):
 
     for ant in ants:
         # mark all current locations of ants as empty
-        field.grid[ant.getX(), ant.getY()] = field.free
+        field.set_cell(ant.location, field.FREE)
         # move all ants which would stay still
         if ant.location == ant.next and ant.moved is False:
             random_walk(ant)
@@ -311,42 +319,44 @@ def collision_check(ants: list, field: fld.field):
 
     trickle_down(ants)
 
-    [ant.unmove() for ant in ants]  # reset ant.moved
+    for ant in ants:
+        ant.reset_moved()
 
 
-def create_animation(field: fld.field):
+def create_animation(field: fld.Field):
     """
-    coordinates creation of animation. writes resulting mp4 to results/ant.mp4
+    coordinates creation of animation. writes resulting mp4 to results/Ant.mp4
 
     Parameters
     ----------
-    field : field
-        field contains all steps in field.maps
+    field : Field
+        Field contains all steps in Field.maps
     """
     anim, writer = field.make_animation()
     path = os.path.dirname(os.path.realpath(__file__))
     path = os.path.join(path, '..', 'results')
     if not os.path.exists(path):
         os.mkdir(path)
-    path = os.path.join(path, 'ant.mp4')
+    path = os.path.join(path, 'Ant.mp4')
     anim.save(path, writer=writer)
 
 
-def print_stats(hive: objects.hive, ants: list):
+def print_stats(hive: objects.Hive, ants: list):
     """
     writes some stats into the console which give a quick impression of a run before it is animated.
 
     Parameters
     ----------
-    hive : hive
-        used to print out how many food was left in storage when simulation ended
+    hive : Hive
+        used to print out how many Food was left in storage when simulation ended
 
     ants : list
         all active ants. Number of remaining ants and their names get printed
     """
-    print("collected food: {}".format(hive.food))
+    print("collected Food: {}".format(hive.food))
     print("surviving ants: {}".format(len(ants)))
-    [print(ant.name) for ant in ants]
+    for ant in ants:
+        print(ant.name)
 
 
 def test_input(settings: dict):
@@ -365,19 +375,19 @@ def test_input(settings: dict):
         "maximum_age": 100000000000000000
     }
 
-    def test_value(value, maxvalue: int):  # value not specified so assert can make more accurate Error output
+    def test_value(value, maxvalue: int):
         """test if value in valid range and an integer"""
-        assert type(value) == int, "value is not integer"
+        assert isinstance(value, int), "value is not integer"
         assert value > 0, "value is less than 1"
         assert value <= maxvalue, "value is too big"
 
     for key, value in settings.items():
         try:
             test_value(value, max_value[key])
-        except AssertionError as e:
+        except AssertionError as error:
             print("-" * 60)
             print("Error in {}".format(key))
-            print(e)
+            print(error)
             print("please enter valid values in the settings.txt file")
             print("valid range: 1 - {}".format(max_value[key]))
             print("-" * 60)

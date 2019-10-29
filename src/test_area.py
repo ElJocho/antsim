@@ -5,17 +5,15 @@ Created on Thu Oct  3 11:38:05 2019
 @author: ElJocho
 """
 import unittest
-import field as fld
-import objects
-import controller as ctr
+import src.field as fld
+import src.objects as objects
 
 
-class test_field(unittest.TestCase):
-    """used for testing field module"""
+class TestField(unittest.TestCase):
+    """used for testing Field module"""
     def test_init(self):
-        """test if field is succesfully initiated"""
-        f = fld.field()
-        assert f.size == len(f.grid) ** 2
+        """test if Field is succesfully initiated"""
+        f = fld.Field()
         assert f.grid[49, 49] == 0
         assert f.grid[49, 43] == 0
         with self.assertRaises(IndexError):
@@ -23,77 +21,95 @@ class test_field(unittest.TestCase):
 
     def test_checkCell(self):
         """check if Check Cell returns correct values"""
-        f = fld.field()
-        assert f.checkCell([49, 49]) == 0
-        assert f.checkCell([3, 49]) == 0
+        f = fld.Field()
+        assert f.check_cell([49, 49]) == 0
+        assert f.check_cell([3, 49]) == 0
         with self.assertRaises(IndexError):
-            f.checkCell([50, 1])
+            f.check_cell([50, 1])
 
     def test_setCell(self):
-        """check if setCell handles values correctly"""
-        f = fld.field()
-        assert f.checkCell([49, 2]) == 0
-        f.setCell([49, 2], 1)
-        assert f.checkCell([49, 2]) == 1
-        with self.assertRaises(ValueError):
-            f.setCell([2, 6], 3)
+        """check if set_cell handles values correctly"""
+        f = fld.Field()
+        assert f.check_cell([49, 2]) == 0
+        f.set_cell([49, 2], 1)
+        assert f.check_cell([49, 2]) == 1
         with self.assertRaises(IndexError):
-            f.setCell([69, 6], 1)
+            f.set_cell([69, 6], 1)
 
 
-class test_ant(unittest.TestCase):
-    """used for testing ant module"""
+class TestAnt(unittest.TestCase):
+    """used for testing Ant module"""
     def test_init(self):
-        """test if ant is correctly initialized"""
-        a = objects.ant()
+        """test if Ant is correctly initialized"""
+        a = objects.Ant()
         assert a.alive is True
         assert a.age == 0
         assert a.location is None
 
+    a = objects.Ant()
+    a.location =[10, 10]
+    f = fld.Field()
+
     def test_die(self):
         """check if ants die if told so"""
-        a = objects.ant()
-        assert a.alive is True
-        a.die()
-        assert a.alive is False
+        assert self.a.alive is True
+        self.a.die()
+        assert self.a.alive is False
+        self.a.alive = True
 
     def test_getOlder(self):
-        """check if ants age the right way and die if they age 81 times"""
-        a = objects.ant()
-        assert a.age == 0
-        for age in range(1, 80):
-            a.getOlder()
-            assert a.age == age
-            assert a.alive is True
-        a.getOlder()
-        assert a.alive is False
+        """check if ants age the right way and die if they age 101 times"""
+        assert self.a.age == 0
+        for age in range(1, 101):
+            self.a.get_older(self.f)
+            assert self.a.age == age
+            assert self.a.alive is True
+        self.a.get_older(self.f)
+        assert self.a.alive is False
+        self.a.alive = True
+        self.a.age = 0
 
     def test_move(self):
         """test if ants move in the right direction and age afterwards"""
-        a = objects.ant()
-        a.move()
-        assert a.age == 1
+        foods = [objects.Food([0, 0])]
+        a2 = objects.Ant()
+        a2.location = [0, 0]
+        hive = objects.Hive([12, 10])
+        ants = [self.a, a2]
+        self.a.move(ants, foods, hive, self.f)
+        assert self.a.age == 1
+        assert self.a.next == [9, 9]
+        self.a.has_food = True
+        self.a.move(ants, foods, hive, self.f)
+        assert self.a.age == 2
+        assert self.a.next == [11, 10]
 
     def test_ant_names(self):
-        """test if ant names are requested correctly"""
-        names = objects.get_ant_names()
-        assert type(names) is list
-        assert len(names) == 40
+        """test if Ant names are requested correctly"""
+        pass
+        assert len(self.a.names) == 0
+        names = self.a.get_ant_names()
+        assert type(self.a.names) is list
+        assert len(self.a.names) == 40
+        assert self.a.name is None
+        self.a.set_name()
+        assert self.a.name is not None
 
 
-class test_food(unittest.TestCase):
+class TestFood(unittest.TestCase):
     def test_food(self):
-        food = objects.food()
+        food = objects.Food()
         food.amount = 20
         food.location = [1, 2]
-        food.changeAmount(3)
-        assert food.amount == 23
-        food.changeAmount(-4)
+        food.nom()
         assert food.amount == 19
-        assert food.getX() == food.location[0]
+        assert food.get_x() == food.location[0]
 
 
-class test_controller(unittest.TestCase):
+class TestUtils(unittest.TestCase):
+    pass
+
+class TestController(unittest.TestCase):
     pass
 
 

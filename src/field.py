@@ -10,26 +10,31 @@ import matplotlib.pyplot as plt
 from matplotlib import animation
 
 
-class field():
-    free = 0
-    ant = 1
-    food = 2
-    hive = 3
+class Field:
+    """
+    provides functions to build and manage a grid which is used for animating the Ant sim.
+    """
+    FREE = 0
+    ANT = 1
+    FOOD = 2
+    HIVE = 3
 
-    def __init__(self, size):
+    def __init__(self, size: int = 50):
         self.size = [size, size]
         self.grid = np.zeros(self.size)
         self.maps = []
 
     def plot(self):
+        """unused in final animation process, but useful for testing. Plot current state of grid."""
         plot_size = self.size
         plt.figure(figsize=(10, 10))
-        ax = plt.axes(xlim=(0, plot_size[1]), ylim=(0, plot_size[0]))
-        a = self.maps[0]
-        ax.imshow(a, interpolation='none', vmin=0, vmax=2, cmap='brg_r')
+        axes = plt.axes(xlim=(0, plot_size[1]), ylim=(0, plot_size[0]))
+        start = self.maps[0]
+        axes.imshow(start, interpolation='none', vmin=0, vmax=2, cmap='brg_r')
         plt.show()
 
-    def checkCell(self, cell):
+    def check_cell(self, cell: list):
+        """return value of Field specified through coordinates in cell"""
         try:
             self.is_valid(cell)
         except IndexError:
@@ -37,37 +42,41 @@ class field():
             raise IndexError
         return self.grid[cell[0], cell[1]]
 
-    def setCell(self, cell, value):
+    def set_cell(self, cell: list, value: int):
+        """initiate test if a cell is valid. If it is valid, set cell: list to value: int"""
         try:
             self.is_valid(cell)
             self.is_valid(value)
         except ValueError:
-            print("invalid Value in setCell value {}".format(value))
+            print("invalid Value in set_cell value {}".format(value))
             raise ValueError
         except IndexError:
-            print("invalid coordinates in setCell {}".format(cell))
+            print("invalid coordinates in set_cell {}".format(cell))
             raise IndexError
         self.grid[cell[0], cell[1]] = value
 
     def is_valid(self, data):
-        if type(data) == list:
+        """raises Errors if data is not valid. data can be int or list."""
+        if isinstance(data, list):
             try:
                 assert len(data) == 2
-                assert data[0] < self.size[0] and data[0] >= 0
-                assert data[1] < self.size[1] and data[1] >= 0
+                assert self.size[0] > data[0] >= 0
+                assert self.size[1] > data[1] >= 0
             except AssertionError:
                 raise IndexError
-        if type(data) == int:
+        if isinstance(data, int):
             try:
-                assert data <= 1
+                assert data <= 3
                 assert data >= 0
             except AssertionError:
                 raise ValueError
 
     def count_ants(self):
-        return np.count_nonzero(self.grid == field.ant)
+        """returns how many ants are currently on the field"""
+        return np.count_nonzero(self.grid == Field.ANT)
 
-    def getFrame(self):
+    def get_frame(self):
+        """get a copy of the current field"""
         return np.copy(self.grid)
 
     def make_animation(self):
@@ -80,26 +89,26 @@ class field():
 
         # set up the figure, the axis, and the plot element we want to animate
         fig = plt.figure(figsize=(15, 15))
-        ax = plt.axes(xlim=(-0.5, plot_size[1]), ylim=(-0.5, plot_size[0]))
-        a = self.maps[0]
-        im = ax.imshow(a, interpolation='none', vmin=0, vmax=3,
-                       cmap='brg_r')
+        axes = plt.axes(xlim=(-0.5, plot_size[1]), ylim=(-0.5, plot_size[0]))
+        start = self.maps[0]
+        image = axes.imshow(start, interpolation='none', vmin=0, vmax=3,
+                            cmap='brg_r')
 
         # initialization function: plot the background of each frame
         def init():
-            im.set_data(np.zeros(plot_size))
-            return [im]
+            image.set_data(np.zeros(plot_size))
+            return [image]
 
         # animation function.  This is called sequentially
         def animate(i):
-            im.set_array(self.maps[i])
-            return [im]
+            image.set_array(self.maps[i])
+            return [image]
 
         # call the animator.
         anim = animation.FuncAnimation(fig, animate, init_func=init,
                                        frames=n_iterations,
                                        interval=500)
-        Writer = animation.writers['ffmpeg']
-        writer = Writer(fps=15, metadata=dict(artist='ElJocho'), bitrate=-1)
+        writer = animation.writers['ffmpeg']
+        writer = writer(fps=15, metadata=dict(artist='ElJocho'), bitrate=-1)
 
         return anim, writer
