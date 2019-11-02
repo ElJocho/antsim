@@ -9,7 +9,6 @@ import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib import animation
 
-
 class Field:
     """
     provides functions to build and manage a grid which is used for animating the Ant sim.
@@ -21,7 +20,7 @@ class Field:
 
     def __init__(self, size: int = 50):
         self.size = [size, size]
-        self.grid = np.zeros(self.size)
+        self.grid = np.zeros(self.size, dtype=np.int8)
         self.maps = []
 
     def plot(self):
@@ -96,7 +95,7 @@ class Field:
 
         # initialization function: plot the background of each frame
         def init():
-            image.set_data(np.zeros(plot_size))
+            image.set_data(np.zeros(plot_size, dtype=np.int8))
             return [image]
 
         # animation function.  This is called sequentially
