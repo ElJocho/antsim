@@ -77,7 +77,7 @@ class Ant:
         """set desired locations for ants"""
         influences = []
 
-        def get_vector(goal):
+        def get_vector(goal: list) -> tuple:
             """generate vector"""
             rel_x = goal[0] - self.get_x()
             rel_y = goal[1] - self.get_y()
@@ -100,16 +100,17 @@ class Ant:
 
             return new_x, new_y
 
-        def towards_goal(goal):
+        def towards_goal(goal: list):
             """coordinate the steps to generate a vector towards a goal"""
             vect = get_vector(goal)
             dist = utils.get_distance(vect)
             normed = utils.normalize(vect, dist)
             weight = utils.linear_weight(dist, field)
-            influences.append([weight, normed])
+            return [weight, normed, dist]
+            #influences.append([weight, normed])
 
-        def towards_ant(ant):
-            """coordinate the stepts to generate a vector towards an ant"""
+        def towards_ant(ant: list):
+            """coordinate the steps to generate a vector towards an ant"""
             vect = get_vector(ant)
             dist = utils.get_distance(get_vector(ant))
             if dist == 0:
@@ -128,11 +129,19 @@ class Ant:
             self.has_food = False
 
         if self.has_food is True:
-            towards_goal(hive.location)
+            influences.append(towards_goal(hive.location)[:2])
             influences[0][0] *= 2  # double the impact towards Hive
-        else:
-            for food in foods:
-                towards_goal(food.location)
+        elif len(foods) >= 1:
+            food_list = [towards_goal(food.location) for food in foods]
+            lowest_idx = 0
+            # make sure ants only walk towards closest Food, otherwise they get stuck
+            if len(food_list) > 1:
+                lowest_dist = food_list[0][2]
+                for counter in range(1, len(food_list)):
+                    if food_list[counter][2] < lowest_dist:
+                        lowest_dist = food_list[counter][2]
+                        lowest_idx = counter
+            influences.append(food_list[lowest_idx][:2])
 
         for ant in ants:
             if ant is self:

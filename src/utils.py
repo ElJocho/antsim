@@ -12,7 +12,7 @@ import random as rdm
 import numpy as np
 
 
-def get_distance(vector: list) -> float:
+def get_distance(vector: tuple) -> float:
     """get distance from self to goal"""
     x_coord, y_coord = vector
     return sqrt(x_coord * x_coord + y_coord * y_coord)
@@ -34,7 +34,7 @@ def bell_weight(dist: float) -> float:
     return weight
 
 
-def normalize(vect: list, distance: float) -> np.array:
+def normalize(vect: tuple, distance: float) -> np.array:
     """normalize vector"""
     np_vect = np.asarray(vect)
     return np_vect / distance

@@ -62,6 +62,26 @@ def create_hive(field: fld.Field) -> objects.Hive:
     return hive
 
 
+def create_food(field: fld.Field) -> objects.Food:
+    """
+    create an instance of class Food with location and marks newly created instance in Field.
+
+    Parameters
+    ----------
+    field : Field
+        playing board used to mark location of Food
+
+    Returns
+    -------
+    ants: list
+        all active Instances of class Ant in a list
+    """
+    food = objects.Food()
+    food.location = utils.random_loc(field)
+    field.set_cell(food.location, field.FOOD)
+    return food
+
+
 def create_ants(amount: int, max_age: int, field: object) -> list:
     """
     create all starting ants with names and locations.
@@ -92,26 +112,6 @@ def create_ants(amount: int, max_age: int, field: object) -> list:
     return ants
 
 
-def create_food(field: fld.Field) -> objects.Food:
-    """
-    create an instance of class Food with location and marks newly created instance in Field.
-
-    Parameters
-    ----------
-    field : Field
-        playing board used to mark location of Food
-
-    Returns
-    -------
-    ants: list
-        all active Instances of class Ant in a list
-    """
-    food = objects.Food()
-    food.location = utils.random_loc(field)
-    field.set_cell(food.location, field.FOOD)
-    return food
-
-
 def next_step(ants: list, field: fld.Field, foods: list, hive: objects.Hive)\
               -> Tuple[list, list]:
     """
@@ -138,13 +138,13 @@ def next_step(ants: list, field: fld.Field, foods: list, hive: objects.Hive)\
     # every Ant declares its desired turn. Ants also get older, and can die.
     for ant in ants:
         ant.move(ants, foods, hive, field)
-    # if any Ant took the last piece of Food, this Food must be deleted now
+    # any dead ants (which died of old age) will not be tracked anymore
+    ants = [ant for ant in ants if ant.alive is True]
+    # if any Ant took the last piece of a Food, this Food must be deleted now
     foods = [food for food in foods if food.amount > 0]
     # chance for a new Food to appear every step
     if 80 / rdm.randint(1, 80) == 1:
         foods.append(create_food(field))
-    # any dead ants (which died of old age) will not be tracked anymore
-    ants = [ant for ant in ants if ant.alive is True]
     # check if desired locations for ants overlap
     collision_check(ants, field)
     # place all ants on the Field
@@ -165,8 +165,6 @@ def next_step(ants: list, field: fld.Field, foods: list, hive: objects.Hive)\
     field.maps.append(field.get_frame())
     # return currently active ants and Food
     return ants, foods
-
-
 
 
 def collision_check(ants: list, field: fld.Field):
@@ -272,24 +270,6 @@ def collision_check(ants: list, field: fld.Field):
         ant.reset_moved()
 
 
-def create_animation(field: fld.Field):
-    """
-    coordinates creation of animation. writes resulting mp4 to results/Ant.mp4
-
-    Parameters
-    ----------
-    field : Field
-        Field contains all steps in Field.maps
-    """
-    anim, writer = field.make_animation()
-    path = os.path.dirname(os.path.realpath(__file__))
-    path = os.path.join(path, '..', 'results')
-    if not os.path.exists(path):
-        os.mkdir(path)
-    path = os.path.join(path, 'Ant.mp4')
-    anim.save(path, writer=writer)
-
-
 def print_stats(hive: objects.Hive, ants: list):
     """
     writes some stats into the console which give a quick impression of a run before it is animated.
@@ -306,6 +286,24 @@ def print_stats(hive: objects.Hive, ants: list):
     print("surviving ants: {}".format(len(ants)))
     for ant in ants:
         print(ant.name)
+
+
+def create_animation(field: fld.Field):
+    """
+    coordinates creation of animation. writes resulting mp4 to results/Ant.mp4
+
+    Parameters
+    ----------
+    field : Field
+        Field contains all steps in Field.maps
+    """
+    anim, writer = field.make_animation()
+    path = os.path.dirname(os.path.realpath(__file__))
+    path = os.path.join(path, '..', 'results')
+    if not os.path.exists(path):
+        os.mkdir(path)
+    path = os.path.join(path, 'Ant.mp4')
+    anim.save(path, writer=writer)
 
 
 def test_input(settings: dict):
