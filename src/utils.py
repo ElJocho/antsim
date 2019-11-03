@@ -5,6 +5,7 @@ Created on Thu Oct  20 10:13:43 2019
 @author: ElJocho
 """
 
+
 from math import sqrt
 import numpy as np
 
@@ -15,16 +16,16 @@ def get_distance(vector: list) -> float:
     return sqrt(x_coord * x_coord + y_coord * y_coord)
 
 
-def linear_weight(dist : float, field: object) -> float:
+def linear_weight(dist: float, field: object) -> float:
     """weight a vector with a linear function"""
     return 1 - dist / sqrt((field.size[0] * field.size[1]) * 2)
 
 
 def bell_weight(dist: float) -> float:
     """weight a vector with a bell weight function"""
-    max_smell_distance = 4
+    max_smell_distance = 3.5
     min_smell_distance = 1.5  # ants that are next to each other dont run towards each other
-    if max_smell_distance > dist > min_smell_distance:
+    if max_smell_distance > dist >= min_smell_distance:
         weight = (1 - (dist / max_smell_distance) ** 2) ** 2
     else:
         weight = 0.

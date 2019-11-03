@@ -7,6 +7,7 @@ Created on Thu Oct  3 11:38:05 2019
 import unittest
 import src.field as fld
 import src.objects as objects
+import src.utils as utils
 
 
 class TestField(unittest.TestCase):
@@ -19,7 +20,7 @@ class TestField(unittest.TestCase):
         assert init_test_field.grid[49, 49] == 0
         assert init_test_field.grid[49, 43] == 0
         with self.assertRaises(IndexError):
-            init_test_field.grid[50, 49]
+            init_test_field.grid[50, 49] = 1
 
     def test_check_cell(self):
         """check if Check Cell returns correct values"""
@@ -111,10 +112,37 @@ class TestFood(unittest.TestCase):
 
 class TestUtils(unittest.TestCase):
     """test utils"""
+    field = fld.Field()
 
+    @staticmethod
+    def test_get_distance():
+        """test get_distance function"""
+        assert utils.get_distance([1, 1]) < utils.get_distance([1, 2]) < utils.get_distance([2, 3])
+        assert utils.get_distance([2, 1]) == utils.get_distance([1, 2])
+        assert isinstance(utils.get_distance([3, 2]), float)
+        assert utils.get_distance([-3, 2]) > 0
 
-class TestController(unittest.TestCase):
-    """test controller"""
+    def test_linear_weight(self):
+        """test linear_weight function"""
+        assert 0 < utils.linear_weight(5, self.field) < 1
+        assert utils.linear_weight(4, self.field) < utils.linear_weight(3, self.field)
+
+    @staticmethod
+    def test_bell_weight():
+        """test bell_weight function"""
+        assert 0 < utils.bell_weight(3) < 1
+        assert 0 < utils.bell_weight(2) < 1
+        assert utils.bell_weight(10) < utils.bell_weight(3) < utils.bell_weight(2)
+        assert utils.bell_weight(10) == utils.bell_weight(1)
+
+    def test_normalize(self):
+        """test normalize function"""
+        vect = [2, 1]
+        self.assertAlmostEqual(
+            utils.get_distance(utils.normalize(vect, utils.get_distance(vect))), 1.)
+        vect = [4, 9]
+        self.assertAlmostEqual(
+            utils.get_distance(utils.normalize(vect, utils.get_distance(vect))), 1.)
 
 
 if __name__ == "__main__":
