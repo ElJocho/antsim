@@ -4,7 +4,7 @@ A simulation where ants struggle to survive on finite ressources.
 Executing the programm will create an ant.mp4 file in the subfolder results. This mp4 is a movie where one frame equals one timestep in the simulation.
 
 ## Installation
-Requires Python 3.7
+Requires Python 3.7, tested with Python 3.7.5
 
 To install this programm on Linux machines please follow these steps:
 1. go to project directory
@@ -24,6 +24,9 @@ You can change various settings in the settings.txt file:
 * maximum_age     -> how old ants can get. Equals number of turns ants are alive.
 
 To run the programm simple execute the main.py function.
+```
+python3 ant_main.py
+```
 
 ## Modules
 **antsim** provides you with the following Modules:
