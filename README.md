@@ -1,6 +1,8 @@
 # antsim
 A simulation where ants struggle to survive on finite ressources.
 
+Executing the programm will create an ant.mp4 file in the subfolder results. This mp4 is a movie where one frame equals one timestep in the simulation.
+
 ## Installation
 Requires Python 3.7
 
@@ -21,9 +23,7 @@ You can change various settings in the settings.txt file:
 * field_size      -> sets the size of the playing board. The board is quadratic so only input one integer.
 * maximum_age     -> how old ants can get. Equals number of turns ants are alive.
 
-To run the programm simple execute the main.py function. It will create ant.mp4 in the folder results.
-This is the result of the simulation, each timestep is one frame.
-
+To run the programm simple execute the main.py function.
 
 ## Modules
 **antsim** provides you with the following Modules:
