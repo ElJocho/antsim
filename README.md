@@ -1,5 +1,5 @@
 # antsim
-a simulation where ants struggle to survive on finite ressources.
+A simulation where ants struggle to survive on finite ressources.
 
 ## Installation
 Requires Python 3.7
