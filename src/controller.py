@@ -12,6 +12,7 @@ import json
 import src.field as fld
 import src.objects as objects
 import src.errors as err
+import src.utils as utils
 
 
 def load_input():
@@ -61,7 +62,7 @@ def create_hive(field: fld.Field) -> objects.Hive:
     return hive
 
 
-def create_ants(amount: int, max_age: int) -> list:
+def create_ants(amount: int, max_age: int, field: object) -> list:
     """
     create all starting ants with names and locations.
 
@@ -73,6 +74,8 @@ def create_ants(amount: int, max_age: int) -> list:
     max_age : int
         number of turns an Ant is alive
 
+    field : Field
+        necessairy for place_ants
     Returns
     -------
     ants: list
@@ -85,6 +88,7 @@ def create_ants(amount: int, max_age: int) -> list:
         ant = objects.Ant(max_age, age)
         ant.set_name()
         ants.append(ant)
+    utils.place_ants(ants, field)
     return ants
 
 
@@ -103,7 +107,7 @@ def create_food(field: fld.Field) -> objects.Food:
         all active Instances of class Ant in a list
     """
     food = objects.Food()
-    food.location = random_loc(field)
+    food.location = utils.random_loc(field)
     field.set_cell(food.location, field.FOOD)
     return food
 
@@ -144,7 +148,7 @@ def next_step(ants: list, field: fld.Field, foods: list, hive: objects.Hive)\
     # check if desired locations for ants overlap
     collision_check(ants, field)
     # place all ants on the Field
-    locate_ants(ants, field)
+    utils.locate_ants(ants, field)
     # check if number of alive ants and number of ants on Field are equal
     assert field.count_ants() == len(ants), "not equal"
     # if the Hive is not currently occupied by an Ant try spawning new Ant
@@ -163,61 +167,6 @@ def next_step(ants: list, field: fld.Field, foods: list, hive: objects.Hive)\
     return ants, foods
 
 
-def random_loc(field: fld.Field) -> list:
-    """
-    create a set of coordinates which indicate a location that is unoccupied and random
-
-    Parameters
-    ----------
-    field : Field
-        playing board which is used to check if the location is unoccupied
-
-    Returns
-    -------
-    location : list
-        unoccupied location
-    """
-    is_blocked = True
-    while is_blocked:
-        location = [rdm.randint(0, field.size[0] - 1),
-                    rdm.randint(0, field.size[1] - 1)]
-        if field.check_cell(location) == field.FREE:
-            is_blocked = False
-    return location
-
-
-def place_ants(ants: list, field: fld.Field):
-    """
-    give starting ants location and place them on Field
-
-    Parameters
-    ----------
-    ants : list
-        list of active ants
-
-    field : Field
-        playing board on which ants are placed
-    """
-    for ant in ants:
-        ant.location = random_loc(field)
-        field.set_cell(ant.location, field.ANT)
-    field.maps.append(field.get_frame())
-
-
-def locate_ants(ants: list, field: fld.Field):
-    """
-    place ants on the map on their locations.
-
-    Parameters
-    ----------
-    ants : list
-        list of active ants
-
-    field : Field
-        playing board on which ants are placed
-    """
-    for ant in ants:
-        field.set_cell(ant.location, field.ANT)
 
 
 def collision_check(ants: list, field: fld.Field):

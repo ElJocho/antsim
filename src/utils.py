@@ -7,6 +7,8 @@ Created on Thu Oct  20 10:13:43 2019
 
 
 from math import sqrt
+import random as rdm
+
 import numpy as np
 
 
@@ -36,3 +38,60 @@ def normalize(vect: list, distance: float) -> np.array:
     """normalize vector"""
     np_vect = np.asarray(vect)
     return np_vect / distance
+
+
+def random_loc(field: object) -> list:
+    """
+    create a set of coordinates which indicate a location that is unoccupied and random
+
+    Parameters
+    ----------
+    field : Field
+        playing board which is used to check if the location is unoccupied
+
+    Returns
+    -------
+    location : list
+        unoccupied location
+    """
+    is_blocked = True
+    while is_blocked:
+        location = [rdm.randint(0, field.size[0] - 1),
+                    rdm.randint(0, field.size[1] - 1)]
+        if field.check_cell(location) == field.FREE:
+            is_blocked = False
+    return location
+
+
+def place_ants(ants: list, field: object):
+    """
+    give starting ants location and place them on Field
+
+    Parameters
+    ----------
+    ants : list
+        list of active ants
+
+    field : Field
+        playing board on which ants are placed
+    """
+    for ant in ants:
+        ant.location = random_loc(field)
+        field.set_cell(ant.location, field.ANT)
+    field.maps.append(field.get_frame())
+
+
+def locate_ants(ants: list, field: object):
+    """
+    place ants on the map on their locations.
+
+    Parameters
+    ----------
+    ants : list
+        list of active ants
+
+    field : Field
+        playing board on which ants are placed
+    """
+    for ant in ants:
+        field.set_cell(ant.location, field.ANT)

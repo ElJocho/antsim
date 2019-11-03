@@ -27,11 +27,10 @@ def main():
     # setup starting conditions
     field = ctr.create_field(settings["field_size"])
     hive = ctr.create_hive(field)
-    active_ants = ctr.create_ants(settings["number_of_ants"],
-                                  settings["maximum_age"])
-
     foods = [ctr.create_food(field)]
-    ctr.place_ants(active_ants, field)
+    active_ants = ctr.create_ants(settings["number_of_ants"],
+                                  settings["maximum_age"],
+                                  field)
     print("starting to simulate time steps")
     # execute certain number of turns
     nof = settings["number_of_turns"]
@@ -48,7 +47,7 @@ def main():
 
 
 if __name__ == "__main__":
-    # repeats main till a valid run occurs.
+    # repeats main till ant valid run occurs.
     # Runs can be invalid if an Ant doesnt have any location to which it can move.
     NOT_FINISHED = True  # pylint thought this is constant idk why
     while NOT_FINISHED:
